@@ -1,0 +1,334 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>PATCH Method Update</title>
+
+<link rel="stylesheet"
+href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+
+<style>
+
+*{
+  margin:0;
+  padding:0;
+  box-sizing:border-box;
+}
+
+body{
+  height:100vh;
+  display:flex;
+  justify-content:center;
+  align-items:center;
+  font-family:'Outfit',sans-serif;
+  background:#0d0d1a;
+  overflow:hidden;
+}
+
+/* BACKGROUND */
+.bg{
+  position:fixed;
+  inset:0;
+  background:linear-gradient(
+    180deg,
+    #0d0d2b,
+    #2d1b4e,
+    #f0a06a
+  );
+}
+
+/* CARD */
+.card{
+  width:360px;
+  padding:35px;
+  border-radius:20px;
+  background:rgba(255,255,255,0.1);
+  backdrop-filter:blur(20px);
+  border:1px solid rgba(255,255,255,0.3);
+  color:white;
+  position:relative;
+  z-index:10;
+}
+
+h2{
+  text-align:center;
+  margin-bottom:20px;
+}
+
+/* INPUT */
+.input{
+  position:relative;
+  margin:12px 0;
+}
+
+.input input{
+  width:100%;
+  padding:14px;
+  border-radius:10px;
+  border:1px solid rgba(255,255,255,0.2);
+  background:rgba(255,255,255,0.1);
+  color:white;
+  outline:none;
+}
+
+.input input::placeholder{
+  color:#ddd;
+}
+
+.input i{
+  position:absolute;
+  right:10px;
+  top:14px;
+  color:white;
+}
+
+/* BUTTON */
+button{
+  width:100%;
+  padding:12px;
+  border:none;
+  border-radius:10px;
+  cursor:pointer;
+  color:white;
+  font-size:15px;
+  margin-top:10px;
+}
+
+.login-btn{
+  background:linear-gradient(
+    135deg,
+    #7c3aed,
+    #3b82f6
+  );
+}
+
+/* MESSAGE */
+#message{
+  margin-top:15px;
+  text-align:center;
+  font-size:14px;
+}
+
+.success{
+  color:#4ade80;
+}
+
+.error{
+  color:#f87171;
+}
+
+/* TOAST */
+.toast{
+  position:fixed;
+  bottom:20px;
+  left:50%;
+  transform:translateX(-50%);
+  background:rgba(255,255,255,0.15);
+  padding:10px 20px;
+  border-radius:30px;
+  opacity:0;
+  transition:0.3s;
+  color:white;
+}
+
+.toast.show{
+  opacity:1;
+}
+
+</style>
+</head>
+
+<body>
+
+<div class="bg"></div>
+
+<form id="sheetdb-form">
+
+<div class="card">
+
+    <h2>Update Account</h2>
+
+    <div class="input">
+        <input 
+            type="text"
+            id="newName"
+            placeholder="New Name"
+        >
+        <i class="fa-solid fa-user-pen"></i>
+    </div>
+
+    <div class="input">
+        <input 
+            type="text"
+            id="newEmail"
+            placeholder="New Email OR Number"
+        >
+        <i class="fa-solid fa-envelope"></i>
+    </div>
+
+    <div class="input">
+        <input 
+            type="password"
+            id="newPassword"
+            placeholder="New Password"
+        >
+        <i class="fa-solid fa-lock"></i>
+    </div>
+
+    <button 
+        type="button"
+        class="login-btn"
+        onclick="changeData()"
+    >
+        Update Account
+    </button>
+
+    <div id="message"></div>
+
+</div>
+
+</form>
+
+<div class="toast" id="toast"></div>
+
+
+
+<script>
+
+const API =
+"https://sheetdb.io/api/v1/x3mqc5d3c7d88";
+
+
+// PATCH METHOD UPDATE
+async function changeData(){
+
+    const newName =
+        document.getElementById("newName")
+        .value
+        .trim();
+
+    const newEmail =
+        document.getElementById("newEmail")
+        .value
+        .trim();
+
+    const newPassword =
+        document.getElementById("newPassword")
+        .value
+        .trim();
+
+
+    // VALIDATION
+    if(
+        !newName ||
+        !newEmail ||
+        !newPassword
+    ){
+
+        showMessage(
+            "Please fill all fields",
+            "error"
+        );
+
+        return;
+    }
+
+
+    try{
+
+        // PATCH METHOD
+        await fetch(
+
+            API + "/EMAIL/" + newEmail,
+
+            {
+
+                method:"PATCH",
+
+                headers:{
+                    "Content-Type":
+                    "application/json"
+                },
+
+                body:JSON.stringify({
+
+                    data:{
+                        NAME:newName,
+                        EMAIL:newEmail,
+                        PASSWORD:newPassword
+                    }
+
+                })
+
+            }
+
+        );
+
+
+        showMessage(
+            "Account Updated Successfully",
+            "success"
+        );
+
+        showToast(
+            "Update Successful"
+        );
+
+        document
+        .getElementById("sheetdb-form")
+        .reset();
+
+
+    }catch(error){
+
+        console.log(error);
+
+        showMessage(
+            "Server Error",
+            "error"
+        );
+
+    }
+
+}
+
+
+
+// MESSAGE
+function showMessage(text,type){
+
+    const message =
+        document.getElementById("message");
+
+    message.className = type;
+
+    message.innerText = text;
+
+}
+
+
+
+// TOAST
+function showToast(text){
+
+    const toast =
+        document.getElementById("toast");
+
+    toast.innerText = text;
+
+    toast.classList.add("show");
+
+    setTimeout(() => {
+
+        toast.classList.remove("show");
+
+    }, 3000);
+
+}
+
+</script>
+
+</body>
+</html>
